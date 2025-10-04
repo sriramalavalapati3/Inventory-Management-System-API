@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default class Database {
-  private static mongoUrl = process.env.mongoUrl as string;
+  private static mongoUrl = process.env.MONGODB_URL as string;
 
   public static async connect(): Promise<void> {
     if (!this.mongoUrl) {
