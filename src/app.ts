@@ -2,6 +2,12 @@ import express, { Application, Request, Response } from "express";
 import { Server as HTTPServer } from "http";
 import cors from "cors";
 import Database from "./database/db";
+import { client } from "./cache/redisClient";
+import RabbitMQClient from "./messaging/rabbitMqClient";
+import { RouteConfig } from "./types";
+import { ProductRouter } from "./modules/products";
+import { errorHandler } from "./modules/Application/ApplicationErrorHandler";
+import InventoryJob from "./jobs/inventoryJob";
 
 export default class App {
   private static app: Application;
@@ -9,7 +15,19 @@ export default class App {
 
   public static async startServer(): Promise<HTTPServer> {
     this.app = express();
-    await Database.connect(); 
+    await Database.connect();
+    await client.connect();
+    console.log("🔄 Rebuilding Redis cache...");
+await InventoryJob.rebuildCache();
+console.log("✅ Redis cache rebuilt");
+    await RabbitMQClient.prototype.RabbitMQClientConnect();
+   
+     const testRedis = async () => {
+    await client.set('foo', 'bar');
+    const result = await client.get('foo');
+    console.log("Redis test value:", result);
+  };
+  await testRedis();
 
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true })); 
@@ -17,6 +35,7 @@ export default class App {
 
 
     this.app.use("/api", this.createRESTApiServer()); 
+    this.app.use(errorHandler as express.ErrorRequestHandler);
 
     this.app.get("/health", (_: Request, res: Response) => {
       res.json({ status: "ok" });
@@ -34,9 +53,15 @@ export default class App {
 
   private static createRESTApiServer(): Application {
     const app: Application = express();
-
-    // register routers here
-    //app.use("/products", productRoutes);
+    let routes: RouteConfig[] = [
+        {
+            path: "/products",
+            router: new ProductRouter().router
+        }
+    ];
+    routes.forEach(route => {
+      app.use(route.path, route.router);
+    });
 
     return app;
   }
