@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { ApplicationError } from '../Application/ApplicationError';
+import { Request, Response, NextFunction } from "express";
+import { ApplicationError } from "../Application/ApplicationError";
 
 export const errorHandler = (
   err: Error,
@@ -17,12 +17,12 @@ export const errorHandler = (
     return;
   }
 
-  console.error('Unexpected Error:', err);
+  console.error("Unexpected Error:", err);
 
   res.status(500).json({
     error: {
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Something went wrong',
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Something went wrong",
     },
   });
 };

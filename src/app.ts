@@ -8,6 +8,7 @@ import { RouteConfig } from "./types";
 import { ProductRouter } from "./modules/products";
 import { errorHandler } from "./modules/Application/ApplicationErrorHandler";
 import InventoryJob from "./jobs/inventoryJob";
+import RabbitMQJobs from "./jobs/msmqJobs";
 
 export default class App {
   private static app: Application;
@@ -18,23 +19,23 @@ export default class App {
     await Database.connect();
     await client.connect();
     console.log("🔄 Rebuilding Redis cache...");
-await InventoryJob.rebuildCache();
-console.log("✅ Redis cache rebuilt");
+    await InventoryJob.rebuildCache();
+    console.log("✅ Redis cache rebuilt");
     await RabbitMQClient.prototype.RabbitMQClientConnect();
-   
-     const testRedis = async () => {
-    await client.set('foo', 'bar');
-    const result = await client.get('foo');
-    console.log("Redis test value:", result);
-  };
-  await testRedis();
+    await RabbitMQJobs.start();
+    
+    // const testRedis = async () => {
+    //   await client.set("foo", "bar");
+    //   const result = await client.get("foo");
+    //   console.log("Redis test value:", result);
+    // };
+    // await testRedis();
 
     this.app.use(express.json());
-    this.app.use(express.urlencoded({ extended: true })); 
+    this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cors());
 
-
-    this.app.use("/api", this.createRESTApiServer()); 
+    this.app.use("/api", this.createRESTApiServer());
     this.app.use(errorHandler as express.ErrorRequestHandler);
 
     this.app.get("/health", (_: Request, res: Response) => {
@@ -54,12 +55,12 @@ console.log("✅ Redis cache rebuilt");
   private static createRESTApiServer(): Application {
     const app: Application = express();
     let routes: RouteConfig[] = [
-        {
-            path: "/products",
-            router: new ProductRouter().router
-        }
+      {
+        path: "/products",
+        router: new ProductRouter().router,
+      },
     ];
-    routes.forEach(route => {
+    routes.forEach((route) => {
       app.use(route.path, route.router);
     });
 

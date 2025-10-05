@@ -1,42 +1,78 @@
 import { client } from "../cache/redisClient";
-import { Product } from "../models/product-model";
-import { getAllProductsResponse, ProductCacheInput, ProductService } from "../modules/products";
-
+// import { Product } from "../models/product-model";
+import {
+  getAllProductsResponse,
+  ProductCacheInput,
+  ProductService,
+} from "../modules/products";
 
 export default class InventoryJob {
   /** Create product in Redis */
-  public async createProduct(product: ProductCacheInput): Promise<void> {
-    await client.hSet(product.id, {
+  public async createProduct(product: ProductCacheInput) {
+    const cachedProduct = await client.hSet(product.id, {
       productName: product.productName,
       description: product.description,
       stock_quantity: product.stock_quantity.toString(),
     });
+    return cachedProduct;
   }
 
   /** Get product from Redis */
- public async getProduct(productId: string): Promise<ProductCacheInput | null> {
-  const cacheKey = `product:${productId}`;
-   const cachedProduct = await client.get(cacheKey);
+  public async getProduct(
+    productId: string
+  ): Promise<ProductCacheInput | null> {
+    const cachedProduct = await client.hGet("products", productId);
     if (cachedProduct) {
       console.log("Cache hit");
       return JSON.parse(cachedProduct);
     }
     return null;
- }
+  }
   /** Update quantity only */
-  public async updateQuantity(productId: string, quantity: number): Promise<void> {
+  public async updateQuantity(
+    productId: string,
+    quantity: number
+  ): Promise<void> {
     if (quantity < 0) throw new Error("Quantity cannot be negative");
     await client.hSet(productId, { stock_quantity: quantity.toString() });
   }
 
   /** Increase quantity */
- public async increaseQuantity(productId: string, increment: number): Promise<void> {
-    await client.hIncrBy("products", `${productId}:quantity`, increment);
+  public async increaseQuantity(
+    productId: string,
+    increment: number
+  ): Promise<void> {
+    try {
+      await client.hIncrBy(
+        "products",
+        `${productId}:stock_quantity`,
+        increment
+      );
+    } catch (error) {
+      console.error(
+        "Error while caching the increasing product quantity:",
+        error
+      );
+    }
   }
 
   /** Atomically decrease quantity in Redis */
-  public async decreaseQuantity(productId: string, decrement: number): Promise<void> {
-    await client.hIncrBy("products", `${productId}:quantity`, -decrement);
+  public async decreaseQuantity(
+    productId: string,
+    decrement: number
+  ): Promise<void> {
+    try {
+      await client.hIncrBy(
+        "products",
+        `${productId}:stock_quantity`,
+        -decrement
+      );
+    } catch (error) {
+      console.error(
+        "Error while caching the decreasing product quantity:",
+        error
+      );
+    }
   }
 
   /** Delete product */
@@ -45,31 +81,33 @@ export default class InventoryJob {
   }
 
   public static async rebuildCache(page = 1, pageSize = 500): Promise<void> {
-  try {
-    const data = await ProductService.getProducts({ page, pageSize }) as unknown as getAllProductsResponse;
-    const products = data.products;
+    try {
+      const data = (await ProductService.getProducts({
+        page,
+        pageSize,
+      })) as unknown as getAllProductsResponse;
+      const products = data.products;
 
-    console.log(data);
+      console.log(data);
 
-    if (products.length === 0) {
-      console.log("✅ Redis cache rebuild complete");
-      return;
+      if (products.length === 0) {
+        console.log("✅ Redis cache rebuild complete");
+        return;
+      }
+
+      // Batch insert products into Redis
+      const entries: [string, string][] = products.map((product) => [
+        product.id.toString(),
+        JSON.stringify(product),
+      ]);
+      await client.hSet("products", Object.fromEntries(entries));
+
+      console.log(`Page ${page} cached: ${products.length} products`);
+
+      // Recursive call
+      await this.rebuildCache(page + 1, pageSize);
+    } catch (error) {
+      console.error("❌ Error while rebuilding cache:", error);
     }
-
-    // Batch insert products into Redis
-    const entries: [string, string][] = products.map((product) => [
-      product.id.toString(),
-      JSON.stringify(product),
-    ]);
-    await client.hSet("products", Object.fromEntries(entries));
-
-    console.log(`Page ${page} cached: ${products.length} products`);
-
-    // Recursive call
-    await this.rebuildCache(page + 1, pageSize);
-
-  } catch (error) {
-    console.error("❌ Error while rebuilding cache:", error);
   }
-}
 }
