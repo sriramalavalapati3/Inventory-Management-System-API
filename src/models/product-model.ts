@@ -1,9 +1,9 @@
 import { Document, Schema } from "mongoose";
 
 export interface Product extends Document {
-   productName: string;
-   description: string;
-   stock_quantity: number;
+  productName: string;
+  description: string;
+  stock_quantity: number;
 }
 
 const productSchema = new Schema<Product>({
@@ -12,4 +12,4 @@ const productSchema = new Schema<Product>({
   stock_quantity: { type: Number, required: true },
 });
 
-export { productSchema};
+export { productSchema };

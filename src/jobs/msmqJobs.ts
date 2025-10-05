@@ -15,12 +15,20 @@ export default class RabbitMQJobs {
 
       try {
         const payload = JSON.parse(msg.content.toString());
-        const { type, productId, quantity } = payload;
+        const { type, product_id, stock_quantity } = payload;
 
         if (type === "INCREMENT") {
-          await ProductService.increaseProductQuantity(productId, quantity);
+          console.log("Increasing product quantity");
+          await ProductService.increaseProductQuantity(
+            product_id,
+            stock_quantity
+          );
         } else if (type === "DECREMENT") {
-          await ProductService.decreaseProductQuantity(productId, quantity);
+          console.log("Decreasing product quantity");
+          await ProductService.decreaseProductQuantity(
+            product_id,
+            stock_quantity
+          );
         }
 
         channel.ack(msg); // acknowledge successful processing
