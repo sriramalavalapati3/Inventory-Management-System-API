@@ -84,6 +84,7 @@ Response
 ### 2. Increase Stock
 
 **PATCH /api/products/update/increase-stock/:id**
+
 **Increments stock quantity.**
 ```bash
 Request Body
@@ -111,6 +112,7 @@ Response
 ### 3. Decrease Stock
 
 **PATCH /api/products/update/decrease-stock/:id**
+
 **Decrements stock quantity.**
 ```bash
 Request Body
@@ -138,6 +140,7 @@ Response
 ### 4. Get Product By ID
 
 **GET /api/products/getProduct/:id**
+
 **Get product by id**
 ```bash
 Response
@@ -157,6 +160,7 @@ Response
 ### 5. Get All Products (Paginated)
 
 **GET /api/products/all?page=1&pageSize=2**
+
 ***Get All Products API***
 
 ***The API supports flexible pagination:***
@@ -196,6 +200,7 @@ Response
 ### 6. Update Product
 
 ***PATCH /api/products/update-product/:id***
+
 ***This API update product by id***
 ```bash 
 Request Body
@@ -221,7 +226,9 @@ Response
 ### 7. Get Products Below Threshold
 
 ***GET /api/products/get-products/below-threshold?threshold=5***
+
 ***This API fetch product below threshold value by passing value***
+
 ```bash
 Response
 
