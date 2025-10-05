@@ -56,6 +56,7 @@ http://localhost:8080
 ### 1. Create Product
 
 **POST /api/products/create-product**
+
 **Creates a new product with initial stock.**
 
 ### Request Body
