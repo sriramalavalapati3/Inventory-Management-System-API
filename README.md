@@ -53,7 +53,7 @@ http://localhost:8080
 ```
 
 ### 📖 API Documentation
-### Explore this Postman Published Documentation
+### Explore this Postman Published API Documentation
 ```bash
 https://documenter.getpostman.com/view/47283622/2sB3QGvCGh
 ```
