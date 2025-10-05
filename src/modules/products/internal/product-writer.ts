@@ -51,23 +51,23 @@ export default class ProductWriter {
     }
   }
 
-  static async increaaseProductQuantity(
+  static async increaseProductQuantity(
     productId: string,
     increment: number
-  ): Promise<void> {
+  ){
     const updatedProduct = await IproductModel.findByIdAndUpdate(
       productId,
       { $inc: { stock_quantity: increment } },
       { new: true } // return updated document
     );
-
     if (!updatedProduct) throw new ProductNotFoundError("Product not found");
+    return updatedProduct;
   }
 
   static async decreaseProductQuantity(
     productId: string,
     decrement: number
-  ): Promise<void> {
+  ) {
     const updatedProduct = await IproductModel.findByIdAndUpdate(
       productId,
       { $inc: { stock_quantity: -decrement } },
@@ -75,5 +75,6 @@ export default class ProductWriter {
     );
 
     if (!updatedProduct) throw new ProductNotFoundError("Product not found");
+    return updatedProduct;
   }
 }

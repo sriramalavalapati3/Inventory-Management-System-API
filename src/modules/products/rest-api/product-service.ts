@@ -115,7 +115,7 @@ export default class ProductService {
   static async increaseProductQuantity(
     productId: string,
     increment: number
-  ): Promise<void> {
+  ) {
     const res = updateStockSchema.safeParse({
       stock_quantity: increment,
       productId,
@@ -132,7 +132,11 @@ export default class ProductService {
         .join("; ");
       throw new ProductBadRequestError(`Invalid request : ${errMessage}`);
     }
-    await ProductWriter.increaaseProductQuantity(
+    const product = await InventoryJob.prototype.getProduct(productId);
+    if (!product) {
+      throw new ProductNotFoundError("Product not found");
+    }
+    const updatedProduct = await ProductWriter.increaseProductQuantity(
       productId,
       increment
     );
@@ -140,12 +144,13 @@ export default class ProductService {
       productId,
       increment
     );
+    return updatedProduct;
   }
 
   static async decreaseProductQuantity(
     productId: string,
     decrement: number
-  ): Promise<void> {
+  ) {
     console.log("Decrementing product quantity:", productId, decrement);
     const product = await InventoryJob.prototype.getProduct(productId);
     if (!product) {
@@ -154,7 +159,7 @@ export default class ProductService {
     if (product && product.stock_quantity <= decrement) {
       throw new ProductBadRequestError("Insufficient stock quantity");
     }
-   await ProductWriter.decreaseProductQuantity(
+   const updatedProduct = await ProductWriter.decreaseProductQuantity(
       productId,
       decrement
     );
@@ -162,6 +167,7 @@ export default class ProductService {
       productId,
       decrement
     );
+    return updatedProduct;
   }
 
   static async getProductsBelowThreshold(threshold: number) {
