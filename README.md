@@ -53,6 +53,10 @@ http://localhost:8080
 ```
 
 ### 📖 API Documentation
+### Explore this Postman Published Documentation
+```bash
+https://documenter.getpostman.com/view/47283622/2sB3QGvCGh
+```
 ### 1. Create Product
 
 **POST /api/products/create-product**
