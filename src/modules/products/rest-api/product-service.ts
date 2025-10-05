@@ -174,4 +174,13 @@ export default class ProductService {
     const products = await ProductReader.getProductsBelowThreshold();
     return products;
   }
+
+  static async deleteProduct(productId: string) {
+    const product = await InventoryJob.prototype.getProduct(productId);
+    if (!product) {
+      throw new ProductNotFoundError("Product not found");
+    }
+    await ProductWriter.deleteProduct(productId);
+    await InventoryJob.prototype.deleteProduct(productId);
+  }
 }

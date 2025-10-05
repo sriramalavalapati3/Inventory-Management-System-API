@@ -77,4 +77,9 @@ export default class ProductWriter {
     if (!updatedProduct) throw new ProductNotFoundError("Product not found");
     return updatedProduct;
   }
+
+  static async deleteProduct(productId: string) {
+   await IproductModel.findByIdAndDelete(productId);
+    return;
+  }
 }

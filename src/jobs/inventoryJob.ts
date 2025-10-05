@@ -77,7 +77,7 @@ export default class InventoryJob {
 
   /** Delete product */
   public async deleteProduct(productId: string): Promise<void> {
-    await client.del(productId);
+    await client.hDel('products', productId);
   }
 
   public static async rebuildCache(page = 1, pageSize = 500): Promise<void> {

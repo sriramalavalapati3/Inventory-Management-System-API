@@ -127,4 +127,16 @@ export default class ProductController {
       next(error);
     }
   };
+
+  deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const productId = req.params.id as string;
+      await ProductService.deleteProduct(productId);
+      res
+        .status(HttpStatusCodes.NO_CONTENT)
+        .end();
+    } catch (error) {
+      next(error);
+    }
+  }
 }

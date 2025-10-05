@@ -249,6 +249,14 @@ Response
   "message": "Products below threshold retrieved successfully"
 }
 ```
+### 8. Delete Products
+***DELETE api/products/delete-product/:id***
+
+***This API delete the product by id***
+
+```bash
+204 No-Content
+```
 
 ### ⚙️ Assumptions & Design Choices
 
