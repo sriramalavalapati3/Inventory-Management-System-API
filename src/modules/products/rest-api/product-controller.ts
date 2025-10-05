@@ -91,7 +91,7 @@ export default class ProductController {
       //     Buffer.from(JSON.stringify({ type, product_id: productId, stock_quantity })),
       //     { persistent: true }
       // );
-      
+
       let updatedProduct;
       if (type === stockUpdateType.INCREMENT) {
         console.log("Increasing product quantity");
@@ -108,11 +108,12 @@ export default class ProductController {
       }
 
       return res.status(HttpStatusCodes.OK).json({
-        message: `Stock ${type.toLowerCase()} job queued for product ${productId}`,
+        updatedProduct,
+        message: `Product Stock ${type.toLowerCase()} Success productId: ${productId}`,
       });
     } catch (error) {
       next(error);
-    };
+    }
   };
 
   getProductsBelowThreshold = async (req: Request, res: Response, next: NextFunction) => {
