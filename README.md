@@ -36,8 +36,8 @@ npm install
 ### Create a .env file in the root directory:
 ```bash
 PORT=8080
-MONGODB_URL=mongodb+srv://Sriram:Sriram@cluster0.6chpjm0.mongodb.net/inventory-management?retryWrites=true&w=majority&appName=Cluster0
-RABBITMQ_URL=amqps://aixpvqmx:bg43idde5KhlAnY8DdISOWr7-zlmOaGa@chameleon.lmq.cloudamqp.com/aixpvqmx
+MONGODB_URL=
+RABBITMQ_URL=
 ```
 
 
